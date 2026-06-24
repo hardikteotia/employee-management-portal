@@ -4,7 +4,14 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "employee_projects")
+@Table(
+        name = "employee_projects",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"employee_id", "project_id"}
+                )
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,11 +23,11 @@ public class EmployeeProject {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
