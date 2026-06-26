@@ -110,3 +110,23 @@ The JWT contains:
 - Expiration timestamp
 
 Tokens are signed using an HMAC secret key to prevent tampering.
+
+
+## Password Encoding
+
+Passwords are never stored in plain text.
+
+The application uses BCryptPasswordEncoder provided by Spring Security.
+
+Authentication flow:
+
+1. User registers.
+2. Password is hashed using BCrypt.
+3. Hash is stored in the database.
+4. During login, the submitted password is hashed and compared with the stored hash.
+
+Benefits:
+
+- One-way hashing
+- Automatic salting
+- Resistant to brute-force attacks
