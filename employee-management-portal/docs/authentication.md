@@ -53,6 +53,8 @@ Authorization: Bearer <token>
 * View announcements
 * Complete onboarding tasks
 
+
+
 ## CustomUserDetails
 
 Spring Security requires every authenticated user to implement the `UserDetails` interface.
@@ -67,3 +69,44 @@ Responsibilities:
 - Indicate whether the account is active
 
 This separation keeps authentication concerns independent from business entities while allowing Spring Security to perform authentication and authorization.
+
+
+
+## CustomUserDetailsService
+
+Spring Security delegates user lookup to the `UserDetailsService` interface.
+
+The application provides a custom implementation that retrieves users from the database using `UserRepository`.
+
+Flow:
+
+1. User submits username.
+2. Spring Security calls `loadUserByUsername()`.
+3. The repository searches the database.
+4. If found, the user is wrapped inside `CustomUserDetails`.
+5. If not found, `UsernameNotFoundException` is thrown and authentication fails.
+
+Responsibilities:
+
+- Load user by username.
+- Bridge Spring Security with the application's persistence layer.
+- Convert `User` entities into `CustomUserDetails`.
+
+
+## JwtService
+
+The `JwtService` is responsible for all JWT-related operations.
+
+Responsibilities:
+
+- Generate JWT tokens after successful authentication.
+- Extract the username from a JWT.
+- Validate token authenticity and expiration.
+
+The JWT contains:
+
+- Username (subject)
+- Issued timestamp
+- Expiration timestamp
+
+Tokens are signed using an HMAC secret key to prevent tampering.
