@@ -130,3 +130,69 @@ Benefits:
 - One-way hashing
 - Automatic salting
 - Resistant to brute-force attacks
+
+
+## AuthenticationService
+
+The `AuthenticationService` contains the business logic for authentication.
+
+Responsibilities:
+
+* Authenticate a user's credentials.
+* Generate a JWT after successful authentication.
+* Return the authentication response to the client.
+
+The controller delegates authentication logic to this service, keeping controllers thin and focused on handling HTTP requests and responses.
+
+Following the Service Interface + Implementation pattern improves maintainability, testability, and allows different authentication strategies to be introduced without changing controller code.
+
+
+## JwtAuthenticationFilter
+
+The `JwtAuthenticationFilter` runs once for every incoming HTTP request.
+
+Responsibilities:
+
+1. Read the `Authorization` header.
+2. Extract the JWT.
+3. Validate the JWT.
+4. Load the corresponding user.
+5. Store the authenticated user inside the `SecurityContext`.
+
+Once the `SecurityContext` is populated, Spring Security considers the request authenticated and authorization rules can be applied.
+
+
+
+## SecurityConfig
+
+`SecurityConfig` defines the application's security rules.
+
+Responsibilities:
+
+- Disable CSRF for REST APIs.
+- Configure public and protected endpoints.
+- Enforce stateless session management.
+- Register the JWT authentication filter.
+- Expose the `AuthenticationManager` bean.
+
+Only `/api/auth/**` endpoints are publicly accessible. All other endpoints require a valid JWT.
+
+
+
+## Repository Updates
+
+To support application bootstrapping and avoid duplicate seed data, repository methods were added for checking the existence of Departments and Locations by name.
+
+### Added Methods
+
+DepartmentRepository
+
+* `findByName(String name)`
+* `existsByName(String name)`
+
+LocationRepository
+
+* `findByName(String name)`
+* `existsByName(String name)`
+
+These methods are primarily used by the DataSeeder to insert default application data only when it does not already exist.
