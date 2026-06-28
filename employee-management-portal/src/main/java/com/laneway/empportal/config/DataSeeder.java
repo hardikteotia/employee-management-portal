@@ -56,36 +56,39 @@ public class DataSeeder implements CommandLineRunner {
             System.out.println("Data Seeder: Database already contains data. Skipping default insertion.");
         }
 
-        seedAdminUser();
+        seedUser("admin", "Admin@123", UserRole.ADMIN,
+                "Portal Admin", "admin.portal@laneway.com", "System Administrator");
+        seedUser("manager", "Manager@123", UserRole.MANAGER,
+                "Portal Manager", "manager.portal@laneway.com", "Engineering Manager");
+        seedUser("employee", "Employee@123", UserRole.EMPLOYEE,
+                "Portal Employee", "employee.portal@laneway.com", "Software Engineer");
 
         System.out.println("========== DATA SEEDER FINISHED ==========");
     }
 
     /**
-     * Ensures a known admin login always works so the portal can be signed
-     * into out of the box. If the admin user already exists, its password is
-     * reset to the known value (handy in dev where the old password may be
-     * lost). Otherwise a fresh admin + dedicated employee record is created.
+     * Ensures a known login always works so the portal can be signed into out
+     * of the box. If the user already exists, its password is reset to the
+     * known value (handy in dev where the old password may be lost). Otherwise
+     * a fresh user + dedicated employee record is created.
      */
-    private void seedAdminUser() {
-        String adminUsername = "admin";
-        String adminPassword = "Admin@123";
-
-        User existing = userRepository.findByUsername(adminUsername).orElse(null);
+    private void seedUser(String username, String password, UserRole role,
+                          String name, String email, String designation) {
+        User existing = userRepository.findByUsername(username).orElse(null);
         if (existing != null) {
-            existing.setPassword(passwordEncoder.encode(adminPassword));
+            existing.setPassword(passwordEncoder.encode(password));
             userRepository.save(existing);
-            System.out.println("Data Seeder: Admin user exists. Reset password -> username: admin / password: Admin@123");
+            System.out.println("Data Seeder: User exists. Reset password -> username: " + username
+                    + " / password: " + password + " (role: " + role + ")");
             return;
         }
 
-        String adminEmail = "admin.portal@laneway.com";
-        Employee adminEmployee = employeeRepository.findByEmail(adminEmail)
+        Employee employee = employeeRepository.findByEmail(email)
                 .orElseGet(() -> employeeRepository.save(
                         Employee.builder()
-                                .name("Portal Admin")
-                                .email(adminEmail)
-                                .designation("System Administrator")
+                                .name(name)
+                                .email(email)
+                                .designation(designation)
                                 .dateOfJoining(LocalDate.now())
                                 .timezone("UTC")
                                 .employmentStatus(EmploymentStatus.ACTIVE)
@@ -93,14 +96,15 @@ public class DataSeeder implements CommandLineRunner {
                                 .build()
                 ));
 
-        User admin = User.builder()
-                .username(adminUsername)
-                .password(passwordEncoder.encode(adminPassword))
-                .role(UserRole.ADMIN)
-                .employee(adminEmployee)
+        User user = User.builder()
+                .username(username)
+                .password(passwordEncoder.encode(password))
+                .role(role)
+                .employee(employee)
                 .build();
-        userRepository.save(admin);
+        userRepository.save(user);
 
-        System.out.println("Data Seeder: Created admin login -> username: admin / password: Admin@123");
+        System.out.println("Data Seeder: Created login -> username: " + username
+                + " / password: " + password + " (role: " + role + ")");
     }
 }
