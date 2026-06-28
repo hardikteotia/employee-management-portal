@@ -3,6 +3,8 @@ package com.laneway.empportal.entity;
 import com.laneway.empportal.enums.EmploymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -48,8 +50,10 @@ public class Employee {
 
     @ManyToOne
     @JoinColumn(name = "manager_id")
+    @JsonBackReference
     private Employee manager;
 
     @OneToMany(mappedBy = "manager")
+    @JsonManagedReference
     private List<Employee> directReports;
 }
