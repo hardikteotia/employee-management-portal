@@ -1,6 +1,7 @@
 package com.laneway.empportal.controller;
 
 import com.laneway.empportal.dto.request.LoginRequest;
+import com.laneway.empportal.dto.request.RegisterRequest;
 import com.laneway.empportal.dto.response.AuthenticationResponse;
 import com.laneway.empportal.service.AuthenticationService;
 import jakarta.validation.Valid;
@@ -18,7 +19,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(
             @Valid @RequestBody LoginRequest request) {
-
         return ResponseEntity.ok(authenticationService.login(request));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<AuthenticationResponse> register(
+            @Valid @RequestBody RegisterRequest request) {
+        return ResponseEntity.ok(authenticationService.register(request));
     }
 }

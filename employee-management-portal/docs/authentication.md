@@ -196,3 +196,41 @@ LocationRepository
 * `existsByName(String name)`
 
 These methods are primarily used by the DataSeeder to insert default application data only when it does not already exist.
+
+
+
+
+# Authentication Module
+
+## Objective
+Provide secure authentication and authorization using Spring Security and JWT.
+
+## APIs
+| Method | Endpoint              | Description                                      |
+|--------|-----------------------|--------------------------------------------------|
+| POST   | `/api/auth/register`  | Register a new user and link to an employee ID.  |
+| POST   | `/api/auth/login`     | Authenticate credentials and receive a JWT.      |
+
+## Roles
+* ADMIN
+* MANAGER
+* EMPLOYEE
+
+## Request & Response
+
+### Request DTOs
+* **RegisterRequest**: Requires `username`, `password`, `role`, and `employeeId`.
+* **LoginRequest**: Requires `username` and `password`.
+
+### Response DTO
+* **AuthenticationResponse**: Returns the `token` (JWT).
+
+## Validation & Business Rules
+* Passwords must be encoded using BCrypt before saving.
+* Usernames must be unique.
+* An `Employee` can only have one `User` account mapped to them (One-to-One).
+* If an invalid `employeeId` is provided during registration, throw a `ResourceNotFoundException`.
+* If an existing `employeeId` or `username` is reused, throw a `DuplicateResourceException`.
+
+## Security Setup
+Only `/api/auth/**` endpoints are publicly accessible. All other application endpoints require a valid Bearer JWT.
