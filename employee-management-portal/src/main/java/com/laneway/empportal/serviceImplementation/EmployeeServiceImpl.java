@@ -5,16 +5,23 @@ import com.laneway.empportal.dto.response.EmployeeResponse;
 import com.laneway.empportal.entity.Department;
 import com.laneway.empportal.entity.Employee;
 import com.laneway.empportal.entity.Location;
+import com.laneway.empportal.enums.EmploymentStatus;
 import com.laneway.empportal.exception.DuplicateResourceException;
 import com.laneway.empportal.exception.ResourceNotFoundException;
 import com.laneway.empportal.repository.DepartmentRepository;
 import com.laneway.empportal.repository.EmployeeRepository;
 import com.laneway.empportal.repository.LocationRepository;
+import com.laneway.empportal.repository.specification.EmployeeSpecification;
 import com.laneway.empportal.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -144,6 +151,51 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setDeleted(true);
 
         employeeRepository.save(employee);
+    }
+
+
+    @Override
+    public Page<EmployeeResponse> searchAndFilter(String keyword, Long departmentId,
+                                                  Long locationId, EmploymentStatus status,
+                                                  int page, int size) {
+
+        Specification<Employee> spec = Specification
+                .where(EmployeeSpecification.isNotDeleted())
+                .and(EmployeeSpecification.searchByNameOrEmail(keyword))
+                .and(EmployeeSpecification.hasDepartment(departmentId))
+                .and(EmployeeSpecification.hasLocation(locationId))
+                .and(EmployeeSpecification.hasEmploymentStatus(status));
+
+        return employeeRepository
+                .findAll(spec, PageRequest.of(page, size))
+                .map(this::mapToResponse);
+    }
+
+    @Override
+    public Map<String, Object> getEmployeeHierarchy(Long id) {
+
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Employee not found."));
+
+        Map<String, Object> hierarchy = new HashMap<>();
+        hierarchy.put("id", employee.getId());
+        hierarchy.put("name", employee.getName());
+        hierarchy.put("designation", employee.getDesignation());
+        hierarchy.put("manager",
+                employee.getManager() != null
+                        ? employee.getManager().getName()
+                        : null);
+
+        List<String> directReports = employee.getDirectReports() == null
+                ? List.of()
+                : employee.getDirectReports().stream()
+                        .map(Employee::getName)
+                        .toList();
+
+        hierarchy.put("directReports", directReports);
+
+        return hierarchy;
     }
 
 

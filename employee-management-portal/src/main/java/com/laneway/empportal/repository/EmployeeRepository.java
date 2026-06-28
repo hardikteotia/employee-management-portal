@@ -1,16 +1,16 @@
 package com.laneway.empportal.repository;
 
-import com.laneway.empportal.entity.Department;
 import com.laneway.empportal.entity.Employee;
-import com.laneway.empportal.entity.Location;
-import com.laneway.empportal.enums.EmploymentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.Optional;
 
-public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+public interface EmployeeRepository
+        extends JpaRepository<Employee, Long>,
+        JpaSpecificationExecutor<Employee> {
 
     Optional<Employee> findByEmail(String email);
 
@@ -18,18 +18,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     Page<Employee> findByDeletedFalse(Pageable pageable);
 
-    Page<Employee> findByDepartmentAndDeletedFalse(
-            Department department,
-            Pageable pageable
-    );
-
-    Page<Employee> findByLocationAndDeletedFalse(
-            Location location,
-            Pageable pageable
-    );
-
-    Page<Employee> findByEmploymentStatusAndDeletedFalse(
-            EmploymentStatus employmentStatus,
-            Pageable pageable
-    );
+    long countByDeletedFalse();
 }
