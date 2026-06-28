@@ -3,6 +3,7 @@ package com.laneway.empportal.exception;
 import com.laneway.empportal.dto.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -14,6 +15,13 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ApiResponse(false, ex.getMessage()));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse> handleAuthentication(AuthenticationException ex) {
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiResponse(false, "Invalid username or password."));
     }
 
     @ExceptionHandler(DuplicateResourceException.class)
