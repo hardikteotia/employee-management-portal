@@ -6,6 +6,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -41,10 +42,24 @@ public class JwtService {
 
         return Jwts.builder()
                 .subject(userDetails.getUsername())
+                .claim("role", extractRole(userDetails))
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSigningKey())
                 .compact();
+    }
+
+    // Derives the plain role name (e.g. "ADMIN") from the user's first
+    // authority, dropping Spring's "ROLE_" prefix so the frontend can read it
+    // directly from the JWT. Returns null if the user has no authority.
+    private String extractRole(UserDetails userDetails) {
+        return userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .map(authority -> authority.startsWith("ROLE_")
+                        ? authority.substring("ROLE_".length())
+                        : authority)
+                .orElse(null);
     }
 
 

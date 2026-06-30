@@ -6,16 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Aggregated, organisation-wide metrics surfaced on the admin dashboard.
- * All values are simple counts so the payload stays cheap to compute and serialise.
- */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AdminDashboardResponse {
+public class DashboardSummaryResponse {
 
     private long totalEmployees;
     private long activeEmployees;
@@ -25,4 +21,6 @@ public class AdminDashboardResponse {
     private long totalLocations;
     private long totalProjects;
     private long remoteEmployees;
+    private long pendingLeaves;
+    private long totalAnnouncements;
 }
