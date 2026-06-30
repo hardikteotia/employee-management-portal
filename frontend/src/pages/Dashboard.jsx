@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react'
 import api from '../api/axios.js'
 import Card from '../components/Card.jsx'
-
-// Maps the DashboardSummaryResponse fields to display labels.
-const STATS = [
-  { key: 'totalEmployees', label: 'Employees' },
-  { key: 'totalDepartments', label: 'Departments' },
-  { key: 'totalProjects', label: 'Projects' },
-  { key: 'pendingLeaves', label: 'Pending Leaves' },
-  { key: 'totalAnnouncements', label: 'Announcements' },
-]
+import { useAuth } from '../context/AuthContext.jsx'
+import {
+  DASHBOARD_CARDS,
+  DASHBOARD_SUBTITLES,
+  allowedFor,
+} from '../config/roles.js'
 
 export default function Dashboard() {
+  const { user } = useAuth()
+  const cards = allowedFor(DASHBOARD_CARDS, user?.role)
+  const subtitle =
+    DASHBOARD_SUBTITLES[user?.role] || 'Overview of your organization.'
+
   const [summary, setSummary] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -43,9 +45,7 @@ export default function Dashboard() {
     <div>
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-100">Dashboard</h2>
-        <p className="mt-1 text-sm text-gray-500">
-          Overview of your organization.
-        </p>
+        <p className="mt-1 text-sm text-gray-500">{subtitle}</p>
       </div>
 
       {error && (
@@ -55,7 +55,7 @@ export default function Dashboard() {
       )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        {STATS.map((stat) => (
+        {cards.map((stat) => (
           <Card key={stat.key}>
             <div className="text-sm font-medium text-gray-400">
               {stat.label}

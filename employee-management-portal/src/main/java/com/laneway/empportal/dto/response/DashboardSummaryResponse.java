@@ -14,8 +14,13 @@ import lombok.Setter;
 public class DashboardSummaryResponse {
 
     private long totalEmployees;
+    private long activeEmployees;
+    private long employeesOnLeave;
+    private long exitedEmployees;
     private long totalDepartments;
+    private long totalLocations;
     private long totalProjects;
+    private long remoteEmployees;
     private long pendingLeaves;
     private long totalAnnouncements;
 }

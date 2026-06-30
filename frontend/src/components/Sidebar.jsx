@@ -1,21 +1,11 @@
 import { NavLink } from 'react-router-dom'
-
-// Navigation items for the portal. `end` is used on Dashboard so it
-// doesn't stay highlighted on nested routes.
-const navItems = [
-  { to: '/', label: 'Dashboard', end: true },
-  { to: '/employees', label: 'Employees' },
-  { to: '/departments', label: 'Departments' },
-  { to: '/projects', label: 'Projects' },
-  { to: '/employee-projects', label: 'Employee Projects' },
-  { to: '/attendance', label: 'Attendance' },
-  { to: '/leaves', label: 'Leave Management' },
-  { to: '/announcements', label: 'Announcements' },
-  { to: '/profile', label: 'Profile' },
-  { to: '/settings', label: 'Settings' },
-]
+import { useAuth } from '../context/AuthContext.jsx'
+import { NAV_ITEMS, allowedFor } from '../config/roles.js'
 
 export default function Sidebar() {
+  const { user } = useAuth()
+  const navItems = allowedFor(NAV_ITEMS, user?.role)
+
   return (
     <aside className="flex h-full w-64 flex-col border-r border-ink-border bg-ink-surface">
       {/* Brand */}

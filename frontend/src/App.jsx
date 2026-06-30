@@ -4,6 +4,7 @@ import Layout from './components/Layout.jsx'
 import Login from './pages/Login.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Placeholder from './pages/Placeholder.jsx'
+import { ROLES } from './config/roles.js'
 
 export default function App() {
   return (
@@ -20,15 +21,30 @@ export default function App() {
         }
       >
         <Route path="/" element={<Dashboard />} />
-        <Route path="/employees" element={<Placeholder title="Employees" />} />
+        <Route
+          path="/employees"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
+              <Placeholder title="Employees" />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/departments"
-          element={<Placeholder title="Departments" />}
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+              <Placeholder title="Departments" />
+            </ProtectedRoute>
+          }
         />
         <Route path="/projects" element={<Placeholder title="Projects" />} />
         <Route
           path="/employee-projects"
-          element={<Placeholder title="Employee Projects" />}
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
+              <Placeholder title="Employee Projects" />
+            </ProtectedRoute>
+          }
         />
         <Route
           path="/attendance"
@@ -43,7 +59,14 @@ export default function App() {
           element={<Placeholder title="Announcements" />}
         />
         <Route path="/profile" element={<Placeholder title="Profile" />} />
-        <Route path="/settings" element={<Placeholder title="Settings" />} />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+              <Placeholder title="Settings" />
+            </ProtectedRoute>
+          }
+        />
       </Route>
 
       {/* Fallback */}
