@@ -1,0 +1,98 @@
+{
+  "info": {
+    "name": "Employee Management Portal - Admin Dashboard",
+    "description": "Requests for the Admin Dashboard module. Log in as an ADMIN user first; the login request stores the JWT in the collection variable {{token}}, which the dashboard request sends as a Bearer token.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Login (ADMIN)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Capture the JWT so the dashboard request can authenticate.",
+              "const json = pm.response.json();",
+              "if (json && json.token) {",
+              "    pm.collectionVariables.set('token', json.token);",
+              "}",
+              "pm.test('login succeeded', function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(json.token).to.be.a('string').and.not.empty;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin@123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "login"]
+        },
+        "description": "Authenticates the seeded admin account and returns a JWT. Default seeded credentials are admin / Admin@123."
+      }
+    },
+    {
+      "name": "Get Admin Dashboard",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('payload has all metrics', function () {",
+              "    const body = pm.response.json();",
+              "    ['totalEmployees','activeEmployees','employeesOnLeave','exitedEmployees','totalDepartments','totalLocations','totalProjects','remoteEmployees']",
+              "        .forEach(function (k) { pm.expect(body).to.have.property(k); });",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/dashboard",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "admin", "dashboard"]
+        },
+        "description": "Returns the organisation-wide summary. Requires a Bearer token belonging to a user with the ADMIN role; MANAGER/EMPLOYEE tokens receive 403 Forbidden, and a missing/invalid token receives 401/403."
+      }
+    }
+  ]
+}
